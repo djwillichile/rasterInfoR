@@ -10,6 +10,8 @@ server <- function(input, output) {
   
   ras <- stack(list.files("/path/to/your/rasters", full.names=T))
   
+  updateSliderInput(session, "layer", max = nlayers(ras))
+  
   #Get Coordinates for Basemap
   xBase <- (extent(ras)[2] + extent(ras)[1]) / 2
   yBase <- (extent(ras)[4] + extent(ras)[3]) / 2
@@ -18,10 +20,6 @@ server <- function(input, output) {
   sp <- SpatialPoints(data.frame(xBase ,yBase))
   crs(sp) <- crs(ras)
   sp <- spTransform(sp, "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-  
-  
-  plot(ras[[1]])
-  points(sp)
 
       output$rasPlot <- renderPlot({
         plot(ras[[input$layer]])
@@ -106,7 +104,7 @@ ui = dashboardPage(
         title = "Interactive Image Analysis", id = "tabset",
         tabPanel("Raster", 
                  plotOutput("rasPlot", click = "rasPlot_click"),
-                 sliderInput("layer", "Plot Timestep", min = 1, max = nlayers(ras),1, width="100%")),
+                 sliderInput("layer", "Plot Timestep", min = 1, max = 1, 1, width="100%")),
         tabPanel("Basemap", leafletOutput("Map", width = "100%"))
       ),
       box(
